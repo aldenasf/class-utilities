@@ -1,0 +1,76 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1. Manajemen Tugas & PR
+model Task {
+  id          Int      @id @default(autoincrement())
+  description String
+  deadline    DateTime
+  createdBy   String?
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+// 2. Kamus Kode Mapel & Guru (dari sheet 'daftar nama guru')
+model SubjectTeacher {
+  code        String   @id // Contoh: "E3", "A7", "I1", "L1"
+  subjectName String   // "Sejarah Indonesia", "Pendidikan Agama Islam"
+  teacherName String   // "Dwi Murdianto, SE"
+}
+
+// 3. Jadwal Pembelajaran Blok (dari sheet 'DRAF MASTER GANJIL')
+model BlockSchedule {
+  id         Int     @id @default(autoincrement())
+  className  String  @default("RPL A")
+  weekNumber Int     // Minggu ke-1 s/d 23
+  slotNumber Int     // Slot Waktu 1 s/d 5
+  code       String  // Kode Mapel atau Indikator ("E3", "1", "MPLS")
+  room       String? // Ruangan ("Bkl", "2", "3", "4")
+}
+
+// 4. Kalender Akademik Mingguan (dari baris tanggal Excel)
+model SemesterWeek {
+  weekNumber Int      @id // 1 s/d 23
+  startDate  DateTime
+  endDate    DateTime
+  isHoliday  Boolean  @default(false)
+  eventNote  String?  // Agenda khusus seperti "CLASS MEETING", "LIBUR SEMESTER"
+}
+
+// 5. Override Jadwal Harian (Koreksi manual via Web Dashboard)
+model ScheduleOverride {
+  id          Int      @id @default(autoincrement())
+  date        DateTime // Tanggal berlakunya perubahan (YYYY-MM-DD)
+  slotNumber  Int      // Slot Waktu 1 s/d 5
+  subjectName String
+  teacherName String?
+  room        String?
+  note        String?
+}
+
+// 6. Petugas Piket Harian
+model Piket {
+  id          Int    @id @default(autoincrement())
+  dayOfWeek   Int    // 1: Senin s/d 5: Jumat
+  studentName String
+}
+
+// 7. Catatan Tambahan (NB)
+model Note {
+  id        Int      @id @default(autoincrement())
+  text      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+// 8. Pengaturan Sistem
+model Setting {
+  key   String @id
+  value String
+}
