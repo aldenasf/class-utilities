@@ -17,11 +17,16 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
     "dotenv": "^18.0.10",
+    "pino": "^10.4.0",
+    "qrcode-terminal": "^0.12.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
+    "@types/pino": "^7.0.4",
+    "@types/qrcode-terminal": "^0.12.2",
     "prisma": "^6.19.3",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
