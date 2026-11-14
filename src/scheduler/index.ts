@@ -1,10 +1,10 @@
-import cron from 'node-cron';
+import cron, { ScheduledTask } from 'node-cron';
 import { ReminderService } from '../core/services/reminder.service.js';
 import { WhatsAppBot } from '../interfaces/whatsapp/client.js';
 import { prisma } from '../core/db.js';
 
 export class SchedulerEngine {
-  private static task: cron.ScheduledTask | null = null;
+  private static task: ScheduledTask | null = null;
 
   public static async init() {
     const timeSetting = await prisma.setting.findUnique({ where: { key: 'reminder_time' } });
