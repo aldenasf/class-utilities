@@ -95,6 +95,11 @@ export default function App() {
     fetchTasks();
     fetchPiket();
     fetchSettings();
+
+    const timer = setInterval(() => {
+      fetchStatus();
+    }, 3000);
+    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -287,6 +292,27 @@ export default function App() {
         {/* OVERVIEW TAB */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
+            {/* Live WhatsApp QR Scan Card */}
+            {!statusData?.whatsappReady && statusData?.qrCodeUrl && (
+              <div className="bg-white p-6 rounded-2xl border-2 border-indigo-200 shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                  <span className="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full uppercase tracking-wider">
+                    Perlu Tautan WhatsApp
+                  </span>
+                  <h3 className="text-lg font-bold text-slate-900 mt-2">Hubungkan Bot WhatsApp</h3>
+                  <p className="text-sm text-slate-500 mt-1 max-w-md">
+                    Buka aplikasi WhatsApp di HP Anda &gt; menu <strong>Titik Tiga / Pengaturan</strong> &gt; pilih <strong>Perangkat Tertaut</strong> &gt; arahkan kamera ke QR Code di samping.
+                  </p>
+                </div>
+                <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center">
+                  <img src={statusData.qrCodeUrl} alt="WhatsApp QR Code" className="w-48 h-48 rounded-lg" />
+                  <span className="text-[11px] text-slate-400 mt-2 flex items-center gap-1 animate-pulse">
+                    <RefreshCw className="w-3 h-3 animate-spin" /> QR otomatis diperbarui
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>

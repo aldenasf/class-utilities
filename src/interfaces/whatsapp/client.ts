@@ -2,11 +2,12 @@ import makeWASocket, {
   DisconnectReason,
   useMultiFileAuthState,
   WASocket,
-  proto,
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import pino from 'pino';
 import path from 'path';
+import qrcodeTerminal from 'qrcode-terminal';
+import QRCode from 'qrcode';
 import { CommandRegistry } from './command-loader.js';
 import { CommandContext } from './types.js';
 import { prisma } from '../../core/db.js';
@@ -15,6 +16,9 @@ export class WhatsAppBot {
   private static socket: WASocket | null = null;
   private static authDir = path.resolve(process.cwd(), 'data', 'auth');
   private static prefix = '.';
+  private static currentQr: string | null = null;
+  private static currentQrDataUrl: string | null = null;
+  private static connected: boolean = false;
 
   public static async start(): Promise<WASocket> {
     await CommandRegistry.loadCommands();
@@ -23,7 +27,6 @@ export class WhatsAppBot {
 
     const sock = makeWASocket({
       auth: state,
-      printQRInTerminal: true,
       logger: pino({ level: 'silent' }) as any,
     });
 
@@ -35,16 +38,32 @@ export class WhatsAppBot {
       const { connection, lastDisconnect, qr } = update;
 
       if (qr) {
-        console.log('📲 Silakan scan QR Code di atas dengan WhatsApp Anda.');
+        this.currentQr = qr;
+        try {
+          this.currentQrDataUrl = await QRCode.toDataURL(qr);
+        } catch (e) {
+          console.error('Error generating QR DataURL:', e);
+        }
+
+        console.log('\n======================================================');
+        console.log('📲 SCAN QR CODE WHATSAPP BERIKUT:');
+        console.log('======================================================\n');
+        qrcodeTerminal.generate(qr, { small: true });
+        console.log('\n📌 Tips: Scan lewat menu WhatsApp > Perangkat Tertaut.');
+        console.log('🌐 Atau scan visual via Web Dashboard: http://localhost:3000\n');
       }
 
       if (connection === 'close') {
+        this.connected = false;
         const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
         console.log('⚠️ WhatsApp terputus. Mencoba menghubungkan kembali:', shouldReconnect);
         if (shouldReconnect) {
           setTimeout(() => this.start(), 3000);
         }
       } else if (connection === 'open') {
+        this.connected = true;
+        this.currentQr = null;
+        this.currentQrDataUrl = null;
         console.log('✅ WhatsApp Bot terhubung dan siap menerima pesan!');
       }
     });
@@ -109,6 +128,14 @@ export class WhatsAppBot {
 
   public static getSocket(): WASocket | null {
     return this.socket;
+  }
+
+  public static isConnected(): boolean {
+    return this.connected;
+  }
+
+  public static getQrDataUrl(): string | null {
+    return this.currentQrDataUrl;
   }
 
   public static async sendMessage(to: string, text: string) {

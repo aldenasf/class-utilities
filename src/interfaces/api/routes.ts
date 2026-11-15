@@ -36,8 +36,8 @@ export const apiRoutes: FastifyPluginAsync = async (server: FastifyInstance) => 
     const activeTasks = await prisma.task.count({ where: { isCompleted: false } });
     const weekSetting = await prisma.setting.findUnique({ where: { key: 'current_week' } });
     const currentWeek = weekSetting ? parseInt(weekSetting.value, 10) : 4;
-    const socket = WhatsAppBot.getSocket();
-    const isWhatsAppReady = socket !== null;
+    const isWhatsAppReady = WhatsAppBot.isConnected();
+    const qrCodeUrl = WhatsAppBot.getQrDataUrl();
 
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -45,6 +45,7 @@ export const apiRoutes: FastifyPluginAsync = async (server: FastifyInstance) => 
 
     return {
       whatsappReady: isWhatsAppReady,
+      qrCodeUrl,
       currentWeek,
       activeTasksCount: activeTasks,
       tomorrowPreview,
