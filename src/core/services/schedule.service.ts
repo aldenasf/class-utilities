@@ -1,14 +1,9 @@
 import { prisma } from "../db.js";
 import { ParsedScheduleResult } from "../excel/types.js";
+import type { ResolvedLessonSlot, EffectiveWeekInfo } from "./types.js";
+import { getDayBounds, isWeekend, formatAcademicDateRange } from "../utils/date.js";
 
-export interface ResolvedLessonSlot {
-    slotNumber: number;
-    code: string;
-    subjectName: string;
-    teacherName?: string;
-    room?: string;
-    isOverride?: boolean;
-}
+export type { ResolvedLessonSlot, EffectiveWeekInfo };
 
 export class ScheduleService {
     /**
@@ -78,7 +73,7 @@ export class ScheduleService {
     }
 
     /**
-     * Get schedule for a specific week and slot/day
+     * Get schedule for a specific week
      */
     public static async getScheduleForWeek(
         weekNumber: number,
@@ -121,14 +116,76 @@ export class ScheduleService {
     }
 
     /**
+     * Resolve the week number for a specific calendar date
+     */
+    public static async resolveWeekNumber(date: Date): Promise<number> {
+        const { startOfDay, endOfDay } = getDayBounds(date);
+
+        const matchedWeek = await prisma.semesterWeek.findFirst({
+            where: {
+                startDate: { lte: endOfDay },
+                endDate: { gte: startOfDay },
+            },
+        });
+
+        if (matchedWeek) {
+            return matchedWeek.weekNumber;
+        }
+
+        const currentWeekSetting = await prisma.setting.findUnique({
+            where: { key: "current_week" },
+        });
+        return currentWeekSetting ? parseInt(currentWeekSetting.value, 10) : 4;
+    }
+
+    /**
+     * Get the effective week number & metadata:
+     * - If date is on a weekend (Saturday or Sunday): automatically targets NEXT week.
+     * - If date is on a weekday (Monday - Friday): targets CURRENT week.
+     */
+    public static async getEffectiveWeekNumber(date: Date = new Date()): Promise<EffectiveWeekInfo> {
+        let targetMonday: Date;
+        let isNextWeek = false;
+
+        if (isWeekend(date)) {
+            // Target the upcoming Monday (Sunday -> +1 day, Saturday -> +2 days)
+            const daysUntilMonday = date.getDay() === 0 ? 1 : 2;
+            targetMonday = new Date(date);
+            targetMonday.setDate(targetMonday.getDate() + daysUntilMonday);
+            targetMonday.setHours(12, 0, 0, 0);
+            isNextWeek = true;
+        } else {
+            targetMonday = date;
+        }
+
+        const weekNumber = await this.resolveWeekNumber(targetMonday);
+        const dateRangeStr = await this.getWeekDateRangeStr(weekNumber);
+
+        return {
+            weekNumber,
+            isNextWeek,
+            dateRangeStr,
+        };
+    }
+
+    /**
+     * Format academic week date range string, e.g. "23-27 November" or "30 November - 4 Desember"
+     */
+    public static async getWeekDateRangeStr(weekNumber: number): Promise<string | null> {
+        const weekInfo = await prisma.semesterWeek.findUnique({
+            where: { weekNumber },
+        });
+        if (!weekInfo?.startDate) return null;
+
+        return formatAcademicDateRange(weekInfo.startDate);
+    }
+
+    /**
      * Get schedule for tomorrow or a specific date
      */
     public static async getScheduleForDate(date: Date, className: string = "RPL A"): Promise<ResolvedLessonSlot[]> {
         // 1. Check for overrides on this specific date (normalized to YYYY-MM-DD)
-        const startOfDay = new Date(date);
-        startOfDay.setHours(0, 0, 0, 0);
-        const endOfDay = new Date(date);
-        endOfDay.setHours(23, 59, 59, 999);
+        const { startOfDay, endOfDay } = getDayBounds(date);
 
         const overrides = await prisma.scheduleOverride.findMany({
             where: {
@@ -151,31 +208,8 @@ export class ScheduleService {
             }));
         }
 
-        // 2. Weekend check (Saturday = 6, Sunday = 0): No KBM on weekends
-        const dayOfWeek = date.getDay();
-        if (dayOfWeek === 0 || dayOfWeek === 6) {
-            return [];
-        }
-
-        // 3. Resolve active semester week dynamically from date
-        const matchedWeek = await prisma.semesterWeek.findFirst({
-            where: {
-                startDate: { lte: endOfDay },
-                endDate: { gte: startOfDay },
-            },
-        });
-
-        let weekNumber: number;
-        if (matchedWeek) {
-            weekNumber = matchedWeek.weekNumber;
-        } else {
-            // Fallback to active semester week setting
-            const currentWeekSetting = await prisma.setting.findUnique({
-                where: { key: "current_week" },
-            });
-            weekNumber = currentWeekSetting ? parseInt(currentWeekSetting.value, 10) : 4;
-        }
-
+        // 2. Resolve week number: automatically selects next week's schedule on weekends, current week on weekdays
+        const { weekNumber } = await this.getEffectiveWeekNumber(date);
         return this.getScheduleForWeek(weekNumber, className);
     }
 }

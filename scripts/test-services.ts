@@ -1,8 +1,5 @@
 import { BlockScheduleParser } from "../src/core/excel/parser.js";
-import { ScheduleService } from "../src/core/services/schedule.service.js";
-import { PiketService } from "../src/core/services/piket.service.js";
-import { TaskService } from "../src/core/services/task.service.js";
-import { ReminderService } from "../src/core/services/reminder.service.js";
+import { ScheduleService, PiketService, TaskService, ReminderService } from "../src/core/services/index.js";
 import { prisma } from "../src/core/db.js";
 import path from "path";
 

@@ -2,59 +2,61 @@ import { prisma } from "../db.js";
 import { ScheduleService } from "./schedule.service.js";
 import { PiketService } from "./piket.service.js";
 import { TaskService } from "./task.service.js";
+import type { DailyDigestData } from "./types.js";
+import { ID_DAYS, ID_MONTHS, formatIndonesianDate, isWeekend } from "../utils/date.js";
 
 export class ReminderService {
     /**
-     * Generate clean WhatsApp formatted reminder message for a given date (usually tomorrow)
+     * Retrieve all structured data needed for the daily digest.
+     * Can be consumed directly by REST API, future Discord bot, or test scripts.
      */
-    public static async generateDailyDigest(targetDate: Date, className: string = "RPL A"): Promise<string> {
-        const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-        const monthNames = [
-            "Januari",
-            "Februari",
-            "Maret",
-            "April",
-            "Mei",
-            "Juni",
-            "Juli",
-            "Agustus",
-            "September",
-            "Oktober",
-            "November",
-            "Desember",
-        ];
+    public static async getDailyDigestData(
+        targetDate: Date,
+        className: string = "RPL A"
+    ): Promise<DailyDigestData> {
+        const dayOfWeek = targetDate.getDay();
+        const effectiveWeek = await ScheduleService.getEffectiveWeekNumber(targetDate);
 
-        const dayName = dayNames[targetDate.getDay()];
-        const dateFormatted = `${targetDate.getDate()} ${monthNames[targetDate.getMonth()]} ${targetDate.getFullYear()}`;
-        const dayOfWeek = targetDate.getDay(); // 1: Senin .. 5: Jumat
+        const [schedule, piket, tasks, notes] = await Promise.all([
+            ScheduleService.getScheduleForDate(targetDate, className),
+            PiketService.getPiketForDay(dayOfWeek),
+            TaskService.getActiveTasks(),
+            prisma.note.findMany({
+                where: { isActive: true },
+                orderBy: { id: "asc" },
+            }),
+        ]);
 
-        // 1. Fetch Tomorrow's Schedule
-        const schedule = await ScheduleService.getScheduleForDate(targetDate, className);
+        return {
+            targetDate,
+            dayName: ID_DAYS[dayOfWeek],
+            dateFormatted: formatIndonesianDate(targetDate),
+            isWeekend: isWeekend(targetDate),
+            effectiveWeek,
+            schedule,
+            piket,
+            tasks,
+            notes,
+        };
+    }
 
-        // 2. Fetch Tomorrow's Piket
-        const piketList = await PiketService.getPiketForDay(dayOfWeek);
+    /**
+     * Pure formatter: turns structured DailyDigestData into a WhatsApp markdown message.
+     */
+    public static formatWhatsAppDigest(data: DailyDigestData): string {
+        const { targetDate, dayName, dateFormatted, isWeekend, effectiveWeek, schedule, piket, tasks, notes } = data;
+        const roomInfo = schedule.length > 0 && schedule[0].room ? ` (Ruang: ${schedule[0].room})` : "";
+        const rangeText = effectiveWeek.dateRangeStr ? ` ${effectiveWeek.dateRangeStr}` : "";
 
-        // 3. Fetch Active PR / Tasks
-        const activeTasks = await TaskService.getActiveTasks();
+        const scheduleTitle = isWeekend
+            ? `Jadwal Pelajaran${rangeText} (Minggu ke-${effectiveWeek.weekNumber})${roomInfo}`
+            : `Jadwal untuk ${dayName}, ${dateFormatted}${roomInfo}`;
 
-        // 4. Fetch Active Notes
-        const notes = await prisma.note.findMany({
-            where: { isActive: true },
-            orderBy: { id: "asc" },
-        });
-
-        // Determine room if available
-        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-        const roomInfo = !isWeekend && schedule.length > 0 && schedule[0].room ? ` (Ruang: ${schedule[0].room})` : "";
-
-        // Build Message
         const lines: string[] = [];
         lines.push(`Assalamualaikum wr wb.`);
-        lines.push(`✨ *Jadwal untuk ${dayName}, ${dateFormatted}${roomInfo}* ✨`);
+        lines.push(`✨ *${scheduleTitle}* ✨`);
 
-        if (isWeekend) {
-            lines.push(`_Libur Akhir Pekan (Tidak ada kegiatan KBM)._`);
-        } else if (schedule.length === 0) {
+        if (schedule.length === 0) {
             lines.push(`_Tidak ada jadwal KBM / Libur._`);
         } else {
             schedule.forEach((s, idx) => {
@@ -69,22 +71,22 @@ export class ReminderService {
         );
         if (isWeekend) {
             lines.push(`_Libur akhir pekan (Tidak ada piket)._`);
-        } else if (piketList.length === 0) {
+        } else if (piket.length === 0) {
             lines.push(`_Belum ada jadwal piket yang diatur._`);
         } else {
-            piketList.forEach((student, idx) => {
+            piket.forEach((student, idx) => {
                 lines.push(`${idx + 1}. ${student}`);
             });
         }
 
         lines.push(``);
         lines.push(`📚 *PR / Tugas Aktif* =`);
-        if (activeTasks.length === 0) {
+        if (tasks.length === 0) {
             lines.push(`_Tidak ada PR aktif (Alhamdulillah!)_`);
         } else {
-            activeTasks.forEach((t, idx) => {
+            tasks.forEach((t, idx) => {
                 const d = new Date(t.deadline);
-                const deadlineStr = `${d.getDate()} ${monthNames[d.getMonth()]}`;
+                const deadlineStr = `${d.getDate()} ${ID_MONTHS[d.getMonth()]}`;
                 lines.push(`${idx + 1}. [Deadline: ${deadlineStr}] ${t.description}`);
             });
         }
@@ -104,5 +106,14 @@ export class ReminderService {
         lines.push(`Wassalamu'alaikum wr wb`);
 
         return lines.join("\n");
+    }
+
+    /**
+     * Generate clean WhatsApp formatted reminder message for a given date (usually tomorrow).
+     * Backwards-compatible convenience wrapper around getDailyDigestData and formatWhatsAppDigest.
+     */
+    public static async generateDailyDigest(targetDate: Date, className: string = "RPL A"): Promise<string> {
+        const data = await this.getDailyDigestData(targetDate, className);
+        return this.formatWhatsAppDigest(data);
     }
 }

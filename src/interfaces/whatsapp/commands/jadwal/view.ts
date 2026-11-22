@@ -1,33 +1,39 @@
 import { Command, CommandContext } from "../../types.js";
-import { ScheduleService } from "../../../../core/services/schedule.service.js";
+import { ScheduleService } from "../../../../core/services/index.js";
 
 export const command: Command = {
     name: "jadwal",
     aliases: ["besok", "pelajaran"],
     category: "jadwal",
-    description: "Tampilkan jadwal pelajaran blok untuk hari esok / hari ini",
+    description: "Tampilkan jadwal pelajaran blok mingguan",
     execute: async (ctx: CommandContext) => {
-        const isToday = ctx.args[0]?.toLowerCase() === "hari-ini";
-        const targetDate = new Date();
-        if (!isToday) {
-            targetDate.setDate(targetDate.getDate() + 1); // Default to tomorrow
+        const today = new Date();
+        const arg = ctx.args[0]?.toLowerCase();
+
+        let weekNumber: number;
+        let dateRange: string | null = null;
+
+        const argWeek = parseInt(arg, 10);
+        if (!isNaN(argWeek) && argWeek > 0 && argWeek <= 25) {
+            weekNumber = argWeek;
+            dateRange = await ScheduleService.getWeekDateRangeStr(weekNumber);
+        } else {
+            const effective = await ScheduleService.getEffectiveWeekNumber(today);
+            weekNumber = effective.weekNumber;
+            dateRange = effective.dateRangeStr;
         }
 
-        const schedule = await ScheduleService.getScheduleForDate(targetDate);
-        const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-        const title = isToday ? "Hari Ini" : "Besok";
+        const schedule = await ScheduleService.getScheduleForWeek(weekNumber);
+        const rangeText = dateRange ? ` ${dateRange}` : "";
+        const title = `Jadwal Pelajaran${rangeText} (Minggu ke-${weekNumber})`;
 
         if (schedule.length === 0) {
-            const isWeekend = targetDate.getDay() === 0 || targetDate.getDay() === 6;
-            const statusMsg = isWeekend
-                ? "_Libur Akhir Pekan (Tidak ada jadwal KBM)._"
-                : "_Tidak ada jadwal KBM / Libur._";
-            await ctx.reply(`✨ *Jadwal Pelajaran ${title} (${dayNames[targetDate.getDay()]})*\n${statusMsg}`);
+            await ctx.reply(`✨ *${title}*\n_Tidak ada data jadwal untuk minggu ini._`);
             return;
         }
 
         const room = schedule[0]?.room ? ` (Ruang: ${schedule[0].room})` : "";
-        const lines = [`✨ *Jadwal Pelajaran ${title} (${dayNames[targetDate.getDay()]})${room}* ✨`];
+        const lines = [`✨ *${title}${room}* ✨`];
 
         schedule.forEach((s, idx) => {
             const teacher = s.teacherName ? ` (${s.teacherName})` : "";
