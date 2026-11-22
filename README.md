@@ -60,22 +60,21 @@ bot discord, serta dashboard web yang sifatnya lebih advanced.
 
 ### 1. Menjalankan di Komputer Lokal (Development)
 
-1. **Install dependensi**:
+1. **Install dependensi dengan pnpm**:
    ```bash
-   npm install
-   npm --prefix web install
+   pnpm install
    ```
 2. **Siapkan database SQLite**:
    ```bash
-   npx prisma db push
+   pnpm prisma db push
    ```
 3. **Build Web Dashboard & jalankan server**:
    ```bash
-   npm run build:web
-   npm run dev
+   pnpm run build:web
+   pnpm run dev
    ```
 4. Buka browser di `http://localhost:3000` untuk mengakses Web Dashboard.
-5. Scan QR code yang muncul di terminal menggunakan WhatsApp di HP Anda.
+5. Scan QR code yang muncul di terminal atau langsung di Web Dashboard menggunakan WhatsApp di HP Anda.
 
 ---
 
@@ -83,7 +82,7 @@ bot discord, serta dashboard web yang sifatnya lebih advanced.
 
 Anda dapat menguji dan mengkalibrasi pembacaan jadwal Excel secara mandiri:
 ```bash
-npm run test:excel
+pnpm run test:excel
 ```
 
 ---
