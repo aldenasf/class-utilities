@@ -19,7 +19,8 @@
         "server:stop": "ssh awa@100.113.193.10 sudo systemctl stop class-utilities",
         "server:start": "ssh awa@100.113.193.10 sudo systemctl start class-utilities",
         "server:status": "ssh awa@100.113.193.10 sudo systemctl status class-utilities",
-        "server:update": "ssh awa@100.113.193.10 /opt/class-utilities/deploy.sh"
+        "server:update": "ssh awa@100.113.193.10 /opt/class-utilities/deploy.sh",
+        "server:push-db-to-prod": "echo '[WARN] Overwriting production database with local database...' && pnpm server:stop && scp data/class.db awa@100.113.193.10:/opt/class-utilities/data/class.db && pnpm server:start && echo '[OK] Local database pushed to production successfully.'"
     },
     "keywords": [],
     "author": "",

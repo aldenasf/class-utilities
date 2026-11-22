@@ -147,6 +147,7 @@ The following scripts in `package.json` control the production server over Tails
 - `pnpm server:status`: Checks if the production service on `awa-debian` is running or stopped.
 - `pnpm server:start`: Starts the production service on `awa-debian`.
 - `pnpm server:update`: Runs `/opt/class-utilities/deploy.sh` on `awa-debian` (`git pull origin master`, `pnpm install`, `pnpm prisma db push`, `pnpm run build:all`, and restarts `class-utilities.service`).
+- `pnpm server:push-db-to-prod`: Explicitly stops production, uploads local development `data/class.db` to production on `awa-debian`, and restarts production. Use with caution as this replaces the remote production database.
 
 ### Standard Developer / AI Agent Workflow on Laptop
 1. **Stop production**: Run `pnpm server:stop` to safely silence the server bot.
