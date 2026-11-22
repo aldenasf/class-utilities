@@ -22,7 +22,11 @@ Dokumen ini merupakan spesifikasi rancangan arsitektur dan teknis resmi untuk pr
 
 ## 2. Assumptions
 
-1. **Jadwal Pelajaran Sistem Blok**: Sekolah menggunakan sistem blok semester (~20–23 minggu) di mana setiap minggu terdiri dari 5 slot waktu pelajaran + 1 kolom ruangan (`R`). Sel-sel ter-merge (seperti kejuruan bengkel atau L1) diekspansi secara otomatis ke slot waktu yang sesuai.
+1. **Jadwal Pelajaran Sistem Blok**: Sekolah menggunakan sistem blok semester (~20–23 minggu) di mana setiap minggu terdiri dari 5 slot waktu pelajaran (periode harian) + 1 kolom ruangan (`R`).
+   - Kelima slot ini (`1` s/d `5`) merepresentasikan **5 jam pelajaran dalam sehari**, dan jadwal harian ini berlaku berulang **setiap hari (Senin s/d Jumat) selama minggu tersebut**.
+   - Bila seluruh 5 slot ter-merge dengan angka (misal `1`, `2`, `3`), itu menandakan jadwal **Bengkel** (Mata Pelajaran Kejuruan) sepanjang hari, setiap hari selama seminggu penuh (ruang `Bkl`).
+   - Terdapat kombinasi parsial, seperti 3 slot kejuruan (angka) ter-merge + 2 slot tersisa ter-merge dengan kode `L1` (Kewirausahaan). Berbeda dengan mapel umum yang selnya tetap terpisah meski berurutan, `L1` ter-merge saat menempati 2 periode.
+   - Sel-sel ter-merge diekspansi secara otomatis ke slot waktu yang sesuai oleh parser Excel.
 2. **Database SQLite Lokal**: Data disimpan dalam satu file fisik `database.db` menggunakan Prisma ORM. Portabel, hemat memori, dan dapat dimigrasikan ke PostgreSQL bila diperlukan.
 3. **Penyimpanan Sesi WhatsApp**: Kredensial login Baileys disimpan di direktori persisten `./data/auth/` dengan dukungan login QR code dan 8-digit Pairing Code.
 4. **Timezone**: Seluruh penjadwalan berpatokan pada Waktu Indonesia Barat (`Asia/Jakarta`, UTC+7).

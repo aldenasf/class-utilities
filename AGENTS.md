@@ -113,3 +113,21 @@ Instructions, operational conventions, and quality standards for AI coding agent
     - `refactor(<scope>): <description>` for code refactoring without behavior changes.
     - `docs(<scope>): <description>` for documentation updates.
 - Keep commits granular and scoped to logical units of work.
+
+---
+
+## 6. Domain Knowledge: Block Schedule Structure (Sistem Blok SMK)
+
+- **Weekly Column Layout (Slots 1 to 5)**:
+    - In the master Excel schedule, each week contains 5 slot columns (labeled `1`, `2`, `3`, `4`, `5`) plus a room column (`R`).
+    - **Crucial Rule**: These 5 slot columns represent the **5 periods of a day**, and this exact daily schedule repeats **every day for the entire week (Monday through Friday)**.
+    - Example: If Week 4 has Slot 1 = Sejarah Indonesia, Slot 2 = Bahasa Jawa, Slot 3 = PAI, Slot 4 = PPKN, Slot 5 = PPKN, then students attend Sejarah, B. Jawa, PAI, and PPKN (2 periods) **every single day from Monday to Friday** during that week.
+- **Bengkel (Mata Pelajaran Kejuruan)**:
+    - If all 5 slots in a week are merged with a single number (e.g. `1`, `2`, `3`), this designates **"Bengkel"** (Mata Pelajaran Kejuruan Praktik) for the entire week, every day from Monday to Friday (e.g., room `Bkl`).
+- **Mixed / Partial Merges & L1 (Kewirausahaan)**:
+    - Some weeks feature a combination: e.g., 3 slots merged with a number (Kejuruan/Bengkel), and the remaining 2 slots merged with code `L1` (Kewirausahaan).
+    - Note on cell merging: Unlike general subjects (which remain unmerged across adjacent cells, e.g. PPKN in slots 4 and 5), `L1` is explicitly merged across the 2 periods it occupies.
+- **Daily Schedule Implications**:
+    - When returning a daily schedule for any weekday (Monday - Friday) within an active week, returning the 5 resolved slots for that week is correct because that timetable applies to each day of that week.
+    - Weekends (Saturday and Sunday) have no KBM (learning activities).
+
