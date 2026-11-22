@@ -121,6 +121,31 @@ async function checkDatabase(): Promise<{ ok: boolean; latency: number; error?: 
     }
 }
 
+function getEnvironmentInfo(): { mode: string; host: string; runtime: string } {
+    const rawEnv = process.env.NODE_ENV?.toLowerCase().trim();
+    let mode: string;
+
+    if (rawEnv === "production" || rawEnv === "prod") {
+        mode = "Production";
+    } else if (rawEnv === "development" || rawEnv === "dev") {
+        mode = "Development";
+    } else {
+        // Fallback detection: running compiled JS from dist or running on server host
+        const isDist = process.argv[1]?.replace(/\\/g, "/").includes("/dist/");
+        const isServer = os.hostname() === "awa-debian" || os.platform() === "linux";
+        if (isDist || isServer) {
+            mode = "Production (Auto-detected)";
+        } else {
+            mode = "Development (Local)";
+        }
+    }
+
+    const host = `${os.hostname()} (${os.type()} ${os.arch()})`;
+    const runtime = `Node.js ${process.version}`;
+
+    return { mode, host, runtime };
+}
+
 export const command: Command = {
     name: "sysinfo",
     aliases: ["stats", "status", "system"],
@@ -158,8 +183,15 @@ export const command: Command = {
         const hasLoadAvg = loadAvg.some((val) => val > 0);
         const loadAvgStr = hasLoadAvg ? loadAvg.map((val) => val.toFixed(2)).join(", ") : null;
 
+        const envInfo = getEnvironmentInfo();
+
         const lines: (string | null)[] = [
             `📊 *STATUS SISTEM & BOT*`,
+            ``,
+            `🏷️ *Environment:*`,
+            `- Mode: ${envInfo.mode}`,
+            `- Host: ${envInfo.host}`,
+            `- Runtime: ${envInfo.runtime}`,
             ``,
             `⏱️ *Uptime:*`,
             `- Bot: ${formatDuration(process.uptime())}`,

@@ -160,3 +160,9 @@ The following scripts in `package.json` control the production server over Tails
 - Production WhatsApp session keys: `/opt/class-utilities/data/auth/`
 - Mobile web management: Cockpit console at `https://100.113.193.10:9090` (one-tap Start/Stop/Restart from phone).
 
+### Environment Configuration & Status Verification (`NODE_ENV`)
+- **Production Mode**: Configured in `/etc/systemd/system/class-utilities.service` with `Environment=NODE_ENV=production`.
+- **Development Mode**: Set in local `.env` with `NODE_ENV=development`.
+- **Deployment Verification**: The `.sysinfo` WhatsApp command displays the active environment mode, host system, and Node.js runtime. After running `pnpm server:update`, check `.sysinfo` to confirm the production bot is online with the updated commit hash and `Mode: Production`.
+
+
