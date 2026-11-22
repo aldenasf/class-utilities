@@ -12,7 +12,7 @@ export class SchedulerEngine {
     const [hour, minute] = reminderTime.split(':').map(v => parseInt(v, 10));
 
     const cronExpr = `${minute || 30} ${hour || 18} * * *`;
-    console.log(`⏰ Scheduler initialized: Daily reminder set for ${reminderTime} WIB (Cron: ${cronExpr})`);
+    console.log(`[SCHEDULER] Initialized for ${reminderTime} WIB (cron: ${cronExpr})`);
 
     if (this.task) {
       this.task.stop();

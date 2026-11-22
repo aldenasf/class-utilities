@@ -43,14 +43,14 @@ export class CommandRegistry {
                 }
               }
             } catch (err) {
-              console.error(`Gagal memuat command [${file}]:`, err);
+              console.error(`[WA] Failed to load command [${file}]:`, err);
             }
           }
         }
       }
     }
 
-    console.log(`✅ Loaded ${this.commands.size} commands (${this.aliases.size} aliases) successfully.`);
+    console.log(`[WA] Loaded ${this.commands.size} commands (${this.aliases.size} aliases)`);
   }
 
   public static getCommand(name: string): Command | undefined {

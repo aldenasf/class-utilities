@@ -42,21 +42,18 @@ export class WhatsAppBot {
         try {
           this.currentQrDataUrl = await QRCode.toDataURL(qr);
         } catch (e) {
-          console.error('Error generating QR DataURL:', e);
+          console.error('[WA] Error generating QR DataURL:', e);
         }
 
-        console.log('\n======================================================');
-        console.log('📲 SCAN QR CODE WHATSAPP BERIKUT:');
-        console.log('======================================================\n');
+        console.log('[WA] Scan the following QR code with WhatsApp (Linked Devices):');
         qrcodeTerminal.generate(qr, { small: true });
-        console.log('\n📌 Tips: Scan lewat menu WhatsApp > Perangkat Tertaut.');
-        console.log('🌐 Atau scan visual via Web Dashboard: http://localhost:3000\n');
+        console.log('[WA] Visual QR code also available on Web Dashboard: http://localhost:3000');
       }
 
       if (connection === 'close') {
         this.connected = false;
         const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
-        console.log('⚠️ WhatsApp terputus. Mencoba menghubungkan kembali:', shouldReconnect);
+        console.log(`[WA] Connection closed. Reconnecting: ${shouldReconnect}`);
         if (shouldReconnect) {
           setTimeout(() => this.start(), 3000);
         }
@@ -64,7 +61,7 @@ export class WhatsAppBot {
         this.connected = true;
         this.currentQr = null;
         this.currentQrDataUrl = null;
-        console.log('✅ WhatsApp Bot terhubung dan siap menerima pesan!');
+        console.log('[WA] Bot connected successfully');
       }
     });
 
@@ -116,7 +113,7 @@ export class WhatsAppBot {
           try {
             await command.execute(ctx);
           } catch (err) {
-            console.error(`Error executing command .${commandName}:`, err);
+            console.error(`[WA] Error executing command .${commandName}:`, err);
             await ctx.reply(`❌ Terjadi kesalahan saat memproses perintah.`);
           }
         }
