@@ -18,13 +18,14 @@ export const command: Command = {
         const lines: string[] = [];
 
         for (const [cat, cmds] of Object.entries(categories)) {
-            lines.push(`*${cat.toUpperCase()}*`);
+            lines.push(`◻️ *${cat.toUpperCase()}*`);
             cmds.forEach((c) => {
-                lines.push(`- *.${c.name}* : ${c.description}`);
+                lines.push(`\`.${c.name}\` : ${c.description}`);
             });
+            lines.push("\n");
         }
 
-        lines.push(`\n_Gunakan tanda titik (.) di awal perintah._`);
+        lines.push(`_Gunakan tanda titik (.) di awal perintah._`);
         await ctx.reply(lines.join("\n"));
     },
 };
