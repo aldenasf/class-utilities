@@ -15,12 +15,12 @@ export const command: Command = {
             categories[cmd.category].push(cmd);
         }
 
-        const lines: string[] = [`🤖 *Menu Perintah Utility Kelas:*`];
+        const lines: string[] = [];
 
         for (const [cat, cmds] of Object.entries(categories)) {
-            lines.push(`\n📂 *Kategori: ${cat.toUpperCase()}*`);
+            lines.push(`*${cat.toUpperCase()}*`);
             cmds.forEach((c) => {
-                lines.push(`• *.${c.name}* : ${c.description}`);
+                lines.push(`- *.${c.name}* : ${c.description}`);
             });
         }
 
