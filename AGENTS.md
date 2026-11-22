@@ -131,3 +131,31 @@ Instructions, operational conventions, and quality standards for AI coding agent
     - When returning a daily schedule for any weekday (Monday - Friday) within an active week, returning the 5 resolved slots for that week is correct because that timetable applies to each day of that week.
     - Weekends (Saturday and Sunday) have no KBM (learning activities).
 
+---
+
+## 7. Production Hosting & Remote Lifecycle Workflow (awa-debian)
+
+This application is deployed 24/7 on the home server `awa-debian` (`100.113.193.10` on Tailscale / `192.168.100.100` on LAN) as a native systemd service (`class-utilities.service`).
+
+### Critical Constraint for AI Coding Agents on Laptop
+- **Dual WhatsApp Companion Devices**: The production server (`awa-debian`) is Linked Device #2, and local development on the laptop is Linked Device #1 on the **same WhatsApp account**.
+- **Strict Prohibition Against Concurrent Runs**: NEVER run `pnpm dev` locally on the laptop without stopping the production instance on `awa-debian` first. If both run at the same time, both bots will receive incoming messages and send duplicate replies / reminders to the class group.
+
+### Remote Server Lifecycle Scripts (Run from Laptop Terminal)
+The following scripts in `package.json` control the production server over Tailscale SSH:
+- `pnpm server:stop`: Pauses production on `awa-debian` before starting local development.
+- `pnpm server:status`: Checks if the production service on `awa-debian` is running or stopped.
+- `pnpm server:start`: Starts the production service on `awa-debian`.
+- `pnpm server:update`: Runs `/opt/class-utilities/deploy.sh` on `awa-debian` (`git pull origin master`, `pnpm install`, `pnpm prisma db push`, `pnpm run build:all`, and restarts `class-utilities.service`).
+
+### Standard Developer / AI Agent Workflow on Laptop
+1. **Stop production**: Run `pnpm server:stop` to safely silence the server bot.
+2. **Develop & Test**: Run `pnpm dev` locally on laptop against local test database.
+3. **Commit & Push**: Commit code changes and push to GitHub `master`.
+4. **Deploy & Resume**: Run `pnpm server:update` to automatically pull, build, and restart production on `awa-debian`.
+
+### Persistent Host Files (Never Overwrite from Laptop)
+- Production database: `/opt/class-utilities/data/class.db`
+- Production WhatsApp session keys: `/opt/class-utilities/data/auth/`
+- Mobile web management: Cockpit console at `https://100.113.193.10:9090` (one-tap Start/Stop/Restart from phone).
+

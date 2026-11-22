@@ -14,7 +14,11 @@
         "prisma:push": "prisma db push",
         "test:excel": "tsx scripts/test-excel-parser.ts",
         "format": "prettier --write .",
-        "format:check": "prettier --check ."
+        "format:check": "prettier --check .",
+        "server:stop": "ssh awa@100.113.193.10 'sudo systemctl stop class-utilities'",
+        "server:start": "ssh awa@100.113.193.10 'sudo systemctl start class-utilities'",
+        "server:status": "ssh awa@100.113.193.10 'sudo systemctl status class-utilities'",
+        "server:update": "ssh awa@100.113.193.10 '/opt/class-utilities/deploy.sh'"
     },
     "keywords": [],
     "author": "",
@@ -23,6 +27,7 @@
         "@fastify/cors": "^11.4.3",
         "@fastify/multipart": "^10.1.9",
         "@fastify/static": "^10.1.12",
+        "@hapi/boom": "^10.0.1",
         "@prisma/client": "^6.19.3",
         "@whiskeysockets/baileys": "^7.0.0-rc14",
         "dotenv": "^18.0.10",
