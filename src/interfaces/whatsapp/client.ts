@@ -91,6 +91,10 @@ export class WhatsAppBot {
 
                 const command = CommandRegistry.getCommand(commandName);
                 if (command) {
+                    if (command.permission === "superuser" && sender !== process.env.SUPERUSER) {
+                        return;
+                    }
+
                     const ctx: CommandContext = {
                         client: sock,
                         msg,

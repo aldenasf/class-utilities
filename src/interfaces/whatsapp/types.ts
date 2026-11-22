@@ -16,5 +16,6 @@ export interface Command {
     aliases?: string[];
     category: string;
     description: string;
+    permission?: undefined | "admin" | "superuser";
     execute: (ctx: CommandContext) => Promise<void>;
 }
