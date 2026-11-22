@@ -22,6 +22,8 @@ The WhatsApp bot interface is built as a decoupled adapter using **[`@whiskeysoc
 ```text
 src/interfaces/whatsapp/
 ├── client.ts             # Baileys client initialization, connection lifecycle & event dispatch
+├── rate-limiter.ts       # Sliding-window rate limiting & debounce cooldown manager
+├── outbound-queue.ts     # Paced async FIFO message queue with typing indicator simulation
 ├── command-loader.ts     # Dynamic scanner and registry for bot commands
 ├── types.ts              # Command and CommandContext TypeScript interfaces
 └── commands/             # Categorized command implementations
@@ -257,3 +259,40 @@ If the bot ever gets logged out or you need to switch the WhatsApp account:
 ### Disconnect & Auto-reconnect Handling
 
 Baileys emits `connection.update` with `DisconnectReason`. The client handles network drops automatically using exponential reconnection unless the session was explicitly logged out from WhatsApp on your phone.
+
+---
+
+## 9. Rate Limiting & Anti-Ban Protection Suite
+
+To prevent WhatsApp companion accounts from getting restricted or banned by Meta's automated spam detection systems, the bot enforces a dual-layer protection suite:
+
+### 1. Inbound Rate Limiting (`RateLimiter`)
+- **Sliding-Window Limits**:
+  - Individual users are limited to **3 commands per 15 seconds**.
+  - The entire group chat has an aggregate safety ceiling of **10 commands per 15 seconds**.
+- **Violation Policy**:
+  - Upon exceeding the limit, the user receives a single polite cooldown notice:
+    ```text
+    ⏳ *Mohon Tunggu Sebentar*
+    Jangan mengirim perintah terlalu cepat. Silakan tunggu beberapa detik.
+    ```
+  - Subsequent commands from that user during the 15-second window are silently dropped.
+- **Admin Exemption**: Users listed under `SUPERUSER` or `ADMIN` in `.env` bypass inbound command limits.
+- **Automated Memory Hygiene**: A recurring unref'd timer cleans up inactive timestamps every 5 minutes.
+
+### 2. Outbound Message Queue & Presence Pacing (`OutboundQueue`)
+- **Serialized FIFO Queue**: All outbound transmissions (`ctx.reply()` and `WhatsAppBot.sendMessage()`) are pushed to a single async FIFO queue with concurrency 1.
+- **Human Typing Simulation**:
+  - The queue calculates typing time dynamically based on message length ($\min(2500\text{ms}, \max(1000\text{ms}, \text{length} \times 15\text{ms})) \pm 200\text{ms}$ jitter).
+  - Emits `sendPresenceUpdate("composing", jid)` before dispatch, and clears it to `"paused"`.
+- **Trailing Safety Jitter**: An extra safety delay of **500ms – 1200ms** is enforced after each sent message, preventing back-to-back packets.
+- **Overflow Protection**: The queue is soft-capped at 50 messages, dropping the oldest unhandled task during network interruptions or spam floods.
+
+### Running Rate Limit Tests
+
+Execute the automated suite anytime using:
+
+```bash
+pnpm run test:ratelimit
+```
+

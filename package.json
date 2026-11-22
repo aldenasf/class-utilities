@@ -13,6 +13,7 @@
         "prisma:migrate": "prisma migrate dev",
         "prisma:push": "prisma db push",
         "test:excel": "tsx scripts/test-excel-parser.ts",
+        "test:ratelimit": "tsx scripts/test-rate-limiting.ts",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "server:stop": "ssh awa@100.113.193.10 sudo systemctl stop class-utilities",
