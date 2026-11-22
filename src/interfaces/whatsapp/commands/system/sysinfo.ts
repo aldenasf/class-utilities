@@ -122,9 +122,9 @@ async function checkDatabase(): Promise<{ ok: boolean; latency: number; error?: 
 }
 
 export const command: Command = {
-    name: "status",
-    aliases: ["stats", "botstatus", "system"],
-    category: "info",
+    name: "sysinfo",
+    aliases: ["stats", "status", "system"],
+    category: "system",
     description: "Cek status bot, uptime, resource, database, dan web dashboard",
     execute: async (ctx: CommandContext) => {
         const [cpuUsage, db] = await Promise.all([getCpuUsage(), checkDatabase()]);

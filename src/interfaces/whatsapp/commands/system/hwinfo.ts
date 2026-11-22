@@ -86,7 +86,7 @@ function getNetworkAddresses(): { name: string; ip: string }[] {
 export const command: Command = {
     name: "hwinfo",
     aliases: ["hardware", "neofetch", "spec", "specs", "serverinfo"],
-    category: "info",
+    category: "system",
     description: "Tampilkan spesifikasi lengkap hardware host dan server",
     execute: async (ctx: CommandContext) => {
         // OS & Host
