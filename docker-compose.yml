@@ -1,23 +1,23 @@
 services:
-  class-utilities:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: class-utilities
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    volumes:
-      # Persistent storage for SQLite database and WhatsApp session
-      - ./data:/app/data
-    environment:
-      - DATABASE_URL=file:/app/data/class.db
-      - ADMIN_PIN=1234
-      - REMINDER_TIME=18:30
-      - REMINDER_ENABLED=true
-      - PORT=3000
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    class-utilities:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: class-utilities
+        restart: unless-stopped
+        ports:
+            - "3000:3000"
+        volumes:
+            # Persistent storage for SQLite database and WhatsApp session
+            - ./data:/app/data
+        environment:
+            - DATABASE_URL=file:/app/data/class.db
+            - ADMIN_PIN=1234
+            - REMINDER_TIME=18:30
+            - REMINDER_ENABLED=true
+            - PORT=3000
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10m"
+                max-file: "3"

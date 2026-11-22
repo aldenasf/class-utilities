@@ -61,18 +61,18 @@ bot discord, serta dashboard web yang sifatnya lebih advanced.
 ### 1. Menjalankan di Komputer Lokal (Development)
 
 1. **Install dependensi dengan pnpm**:
-   ```bash
-   pnpm install
-   ```
+    ```bash
+    pnpm install
+    ```
 2. **Siapkan database SQLite**:
-   ```bash
-   pnpm prisma db push
-   ```
+    ```bash
+    pnpm prisma db push
+    ```
 3. **Build Web Dashboard & jalankan server**:
-   ```bash
-   pnpm run build:web
-   pnpm run dev
-   ```
+    ```bash
+    pnpm run build:web
+    pnpm run dev
+    ```
 4. Buka browser di `http://localhost:3000` untuk mengakses Web Dashboard.
 5. Scan QR code yang muncul di terminal atau langsung di Web Dashboard menggunakan WhatsApp di HP Anda.
 
@@ -81,6 +81,7 @@ bot discord, serta dashboard web yang sifatnya lebih advanced.
 ### 2. Testing Standalone Excel Parser (Tanpa Menjalankan Server)
 
 Anda dapat menguji dan mengkalibrasi pembacaan jadwal Excel secara mandiri:
+
 ```bash
 pnpm run test:excel
 ```
@@ -91,12 +92,11 @@ pnpm run test:excel
 
 1. Clone atau salin folder proyek ke `docker-vm` (misal di `/home/docker/class-utilities`).
 2. Jalankan container:
-   ```bash
-   docker compose up -d --build
-   ```
+    ```bash
+    docker compose up -d --build
+    ```
 3. Untuk scan QR WhatsApp pertama kali di server headless:
-   ```bash
-   docker compose logs -f class-utilities
-   ```
+    ```bash
+    docker compose logs -f class-utilities
+    ```
 4. Sambungkan port `3000` ke Cloudflare Tunnel (`cloudflared`) yang sudah berjalan di `docker-vm` agar dashboard bisa diakses dengan aman melalui internet via HTTPS (misal: `https://kelas.domain-anda.com`).
-

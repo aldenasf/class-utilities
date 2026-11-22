@@ -6,17 +6,17 @@ Dokumen ini merupakan spesifikasi rancangan arsitektur dan teknis resmi untuk pr
 
 ## 1. Understanding Summary
 
-* **Tujuan**: Membangun sistem utilitas kelas terpadu untuk mengotomasi pengingat tugas (PR), jadwal pelajaran berbasis sistem blok mingguan, jadwal piket kebersihan, serta pengingat harian otomatis ke grup WhatsApp kelas.
-* **Target Pengguna**: 1 kelas mandiri (Kelas XI-2 / RPL SMKN 1 Jenangan, ~30–40 siswa dan pengurus kelas).
-* **Lingkup Antarmuka**:
-  * **Tahap 1 (MVP)**: Bot WhatsApp (interaksi siswa di grup) dan Web Dashboard (manajemen data visual untuk pengurus).
-  * **Tahap 2**: Bot Discord (terhubung ke *core domain services* yang sama).
-* **Hak Akses & Otorisasi**:
-  * *Bot WhatsApp*: Terbuka untuk seluruh siswa di grup kelas (`.add`, `.list`, `.done`, `.del`, `.jadwal`, `.piket`, `.nb`).
-  * *Web Dashboard*: Diproteksi dengan 1 Master PIN / Password Admin untuk pengurus kelas.
-* **Infrastruktur & Hosting**:
-  * *Development*: Laptop lokal Windows (`npm run dev`).
-  * *Production*: Self-hosted di Home Proxmox Server (`awa-debian`), tepatnya di dalam VM 100 (`docker-vm` Ubuntu 24.04 LTS) via Docker Compose, dan diekspos melalui Cloudflare Tunnel (`cloudflared`).
+- **Tujuan**: Membangun sistem utilitas kelas terpadu untuk mengotomasi pengingat tugas (PR), jadwal pelajaran berbasis sistem blok mingguan, jadwal piket kebersihan, serta pengingat harian otomatis ke grup WhatsApp kelas.
+- **Target Pengguna**: 1 kelas mandiri (Kelas XI-2 / RPL SMKN 1 Jenangan, ~30–40 siswa dan pengurus kelas).
+- **Lingkup Antarmuka**:
+    - **Tahap 1 (MVP)**: Bot WhatsApp (interaksi siswa di grup) dan Web Dashboard (manajemen data visual untuk pengurus).
+    - **Tahap 2**: Bot Discord (terhubung ke _core domain services_ yang sama).
+- **Hak Akses & Otorisasi**:
+    - _Bot WhatsApp_: Terbuka untuk seluruh siswa di grup kelas (`.add`, `.list`, `.done`, `.del`, `.jadwal`, `.piket`, `.nb`).
+    - _Web Dashboard_: Diproteksi dengan 1 Master PIN / Password Admin untuk pengurus kelas.
+- **Infrastruktur & Hosting**:
+    - _Development_: Laptop lokal Windows (`npm run dev`).
+    - _Production_: Self-hosted di Home Proxmox Server (`awa-debian`), tepatnya di dalam VM 100 (`docker-vm` Ubuntu 24.04 LTS) via Docker Compose, dan diekspos melalui Cloudflare Tunnel (`cloudflared`).
 
 ---
 
@@ -31,15 +31,15 @@ Dokumen ini merupakan spesifikasi rancangan arsitektur dan teknis resmi untuk pr
 
 ## 3. Decision Log
 
-| No | Topik | Keputusan | Alternatif Dipertimbangkan | Alasan Pemilihan |
-|---|---|---|---|---|
-| 1 | **Arsitektur Sistem** | Layered Modular Monolith (Single Process) | Microservices, Decoupled API + Worker | Hemat RAM (< 200MB), tanpa network latency antar modul, mudah di-maintain. |
-| 2 | **Engine WhatsApp** | `@whiskeysockets/baileys` | `whatsapp-web.js` (Puppeteer) | Baileys berkomunikasi via direct WebSocket (Noise Protocol) tanpa browser Chrome, memori < 100MB. |
-| 3 | **Database & ORM** | SQLite + Prisma ORM | PostgreSQL Cloud (Supabase), Raw SQLite | Zero-config, offline-ready di laptop, storage permanen di VPS Proxmox, type-safe schema. |
-| 4 | **Frontend Dashboard** | React + Vite + Tailwind CSS | Plain EJS HTML, Next.js Fullstack | Developer experience modern (HMR), dikompilasi jadi file statis yang disajikan oleh backend Fastify. |
-| 5 | **Excel Parsing Engine** | Standalone Modular Parser dengan Range Selector | Hardcoded static cell parser | Layout file sekolah dinamis antar-tahun; parser modular bisa ditest/dikalibrasi secara independen via CLI. |
-| 6 | **Bot Command Structure**| Dynamic File-based Command Handler | Single switch-case / monolithic router | Perintah dipisah per file (`commands/<category>/<command>.ts`), sangat rapi dan mudah diekstensi. |
-| 7 | **Standar Git** | Conventional Commits | Freeform commits | Riwayat commit terstruktur rapi (`feat:`, `fix:`, `chore:`). |
+| No  | Topik                     | Keputusan                                       | Alternatif Dipertimbangkan              | Alasan Pemilihan                                                                                           |
+| --- | ------------------------- | ----------------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 1   | **Arsitektur Sistem**     | Layered Modular Monolith (Single Process)       | Microservices, Decoupled API + Worker   | Hemat RAM (< 200MB), tanpa network latency antar modul, mudah di-maintain.                                 |
+| 2   | **Engine WhatsApp**       | `@whiskeysockets/baileys`                       | `whatsapp-web.js` (Puppeteer)           | Baileys berkomunikasi via direct WebSocket (Noise Protocol) tanpa browser Chrome, memori < 100MB.          |
+| 3   | **Database & ORM**        | SQLite + Prisma ORM                             | PostgreSQL Cloud (Supabase), Raw SQLite | Zero-config, offline-ready di laptop, storage permanen di VPS Proxmox, type-safe schema.                   |
+| 4   | **Frontend Dashboard**    | React + Vite + Tailwind CSS                     | Plain EJS HTML, Next.js Fullstack       | Developer experience modern (HMR), dikompilasi jadi file statis yang disajikan oleh backend Fastify.       |
+| 5   | **Excel Parsing Engine**  | Standalone Modular Parser dengan Range Selector | Hardcoded static cell parser            | Layout file sekolah dinamis antar-tahun; parser modular bisa ditest/dikalibrasi secara independen via CLI. |
+| 6   | **Bot Command Structure** | Dynamic File-based Command Handler              | Single switch-case / monolithic router  | Perintah dipisah per file (`commands/<category>/<command>.ts`), sangat rapi dan mudah diekstensi.          |
+| 7   | **Standar Git**           | Conventional Commits                            | Freeform commits                        | Riwayat commit terstruktur rapi (`feat:`, `fix:`, `chore:`).                                               |
 
 ---
 
@@ -168,16 +168,18 @@ model Setting {
 ## 6. Standalone Excel Parser Engine
 
 Modul parser ditempatkan secara terisolasi di `src/core/excel/` dengan kemampuan dieksekusi mandiri:
-* **Deteksi 6-Kolom Mingguan**: Membaca 5 slot waktu pelajaran dan 1 slot ruangan (`R`).
-* **Smart Unmerge**: Mengisi nilai sel secara merata ke seluruh slot waktu bila terdapat *merged cells* (misal: blok bengkel 5 slot, atau proyek L1 2 slot).
-* **Deteksi Event Vertikal**: Mendeteksi kolom khusus non-KBM (seperti Ulangan Akhir Semester, Class Meeting, dan Libur Semester) dan menyimpannya sebagai `eventNote` pada `SemesterWeek`.
-* **CLI Standalone**: Disediakan script `npm run test:excel` untuk pengujian dan kalibrasi cepat tanpa menyalakan server/bot.
+
+- **Deteksi 6-Kolom Mingguan**: Membaca 5 slot waktu pelajaran dan 1 slot ruangan (`R`).
+- **Smart Unmerge**: Mengisi nilai sel secara merata ke seluruh slot waktu bila terdapat _merged cells_ (misal: blok bengkel 5 slot, atau proyek L1 2 slot).
+- **Deteksi Event Vertikal**: Mendeteksi kolom khusus non-KBM (seperti Ulangan Akhir Semester, Class Meeting, dan Libur Semester) dan menyimpannya sebagai `eventNote` pada `SemesterWeek`.
+- **CLI Standalone**: Disediakan script `npm run test:excel` untuk pengujian dan kalibrasi cepat tanpa menyalakan server/bot.
 
 ---
 
 ## 7. Dynamic WhatsApp Command Engine
 
 Struktur folder modular:
+
 ```text
 src/interfaces/whatsapp/commands/
 ├── tugas/
@@ -210,24 +212,24 @@ src/interfaces/whatsapp/commands/
 ## 9. Phased Implementation Roadmap
 
 1. **Fase 1: Inisialisasi Proyek & Prisma Core**
-   * Setup TypeScript, Prisma ORM, konfigurasi SQLite, dan base models.
-   * *Commit*: `chore: initialize project structure and prisma sqlite schema`
+    - Setup TypeScript, Prisma ORM, konfigurasi SQLite, dan base models.
+    - _Commit_: `chore: initialize project structure and prisma sqlite schema`
 2. **Fase 2: Standalone Excel Parser & CLI Runner**
-   * Modul parser di `src/core/excel/` dengan dukungan range mapping dan smart unmerge.
-   * Script CLI `scripts/test-excel-parser.ts`.
-   * *Commit*: `feat(excel): implement isolated block schedule parser and cli runner`
+    - Modul parser di `src/core/excel/` dengan dukungan range mapping dan smart unmerge.
+    - Script CLI `scripts/test-excel-parser.ts`.
+    - _Commit_: `feat(excel): implement isolated block schedule parser and cli runner`
 3. **Fase 3: Core Domain Services**
-   * Layanan bisnis `TaskService`, `ScheduleService`, `PiketService`, dan `ReminderService`.
-   * *Commit*: `feat(core): implement domain business logic services`
+    - Layanan bisnis `TaskService`, `ScheduleService`, `PiketService`, dan `ReminderService`.
+    - _Commit_: `feat(core): implement domain business logic services`
 4. **Fase 4: WhatsApp Engine & Dynamic Command Handler**
-   * Integrasi Baileys client, persistent auth store, command loader dinamis.
-   * *Commit*: `feat(whatsapp): integrate baileys client and modular command handler`
+    - Integrasi Baileys client, persistent auth store, command loader dinamis.
+    - _Commit_: `feat(whatsapp): integrate baileys client and modular command handler`
 5. **Fase 5: Scheduler Engine (Daily 18:30 WIB)**
-   * Konfigurasi `node-cron` untuk rekap harian otomatis.
-   * *Commit*: `feat(scheduler): implement configurable daily digest reminder cron`
+    - Konfigurasi `node-cron` untuk rekap harian otomatis.
+    - _Commit_: `feat(scheduler): implement configurable daily digest reminder cron`
 6. **Fase 6: Web Dashboard SPA & Fastify Server**
-   * Pembuatan REST API Fastify dan antarmuka React + Vite + Tailwind.
-   * *Commit*: `feat(web): build interactive dashboard spa and api server`
+    - Pembuatan REST API Fastify dan antarmuka React + Vite + Tailwind.
+    - _Commit_: `feat(web): build interactive dashboard spa and api server`
 7. **Fase 7: Containerization & Deployment Setup**
-   * Multi-stage `Dockerfile` dan `docker-compose.yml` untuk VM 100 Proxmox `awa-debian`.
-   * *Commit*: `chore(docker): create multi-stage dockerfile and compose configuration`
+    - Multi-stage `Dockerfile` dan `docker-compose.yml` untuk VM 100 Proxmox `awa-debian`.
+    - _Commit_: `chore(docker): create multi-stage dockerfile and compose configuration`
