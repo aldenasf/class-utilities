@@ -6,6 +6,8 @@ import qrcodeTerminal from "qrcode-terminal";
 import QRCode from "qrcode";
 import { CommandRegistry } from "./command-loader.js";
 import { CommandContext } from "./types.js";
+import { RateLimiter } from "./rate-limiter.js";
+import { OutboundQueue } from "./outbound-queue.js";
 import { prisma } from "../../core/db.js";
 
 export class WhatsAppBot {
@@ -28,6 +30,7 @@ export class WhatsAppBot {
         });
 
         this.socket = sock;
+        OutboundQueue.setSocket(sock);
 
         sock.ev.on("creds.update", saveCreds);
 
@@ -49,6 +52,8 @@ export class WhatsAppBot {
 
             if (connection === "close") {
                 this.connected = false;
+                OutboundQueue.setSocket(null);
+
                 const shouldReconnect =
                     (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
                 console.log(`[WA] Connection closed. Reconnecting: ${shouldReconnect}`);
@@ -59,6 +64,7 @@ export class WhatsAppBot {
                 this.connected = true;
                 this.currentQr = null;
                 this.currentQrDataUrl = null;
+                OutboundQueue.setSocket(sock);
                 console.log("[WA] Bot connected successfully");
             }
         });
@@ -92,19 +98,19 @@ export class WhatsAppBot {
 
                 const command = CommandRegistry.getCommand(commandName);
                 if (command) {
-                    if (command.permission === "superuser" && sender !== process.env.SUPERUSER) return;
-                    if (
-                        command.permission === "admin" &&
-                        !this.admin.includes(sender) &&
-                        sender !== process.env.SUPERUSER
-                    )
-                        return;
+                    const isSuperuser = sender === process.env.SUPERUSER;
+                    const isAdmin = this.admin.includes(sender);
+                    const isPrivileged = isSuperuser || isAdmin;
 
-                    if (
-                        command.permission === "admin" &&
-                        sender !== process.env.SUPERUSER &&
-                        !this.admin.includes(sender)
-                    ) {
+                    if (command.permission === "superuser" && !isSuperuser) return;
+                    if (command.permission === "admin" && !isPrivileged) return;
+
+                    // Inbound Rate Limiting Check
+                    const rateCheck = RateLimiter.check(sender, from, isPrivileged);
+                    if (!rateCheck.allowed) {
+                        if (rateCheck.shouldWarn) {
+                            await OutboundQueue.enqueue(from, { text: RateLimiter.WARNING_MESSAGE }, { quoted: msg });
+                        }
                         return;
                     }
 
@@ -117,7 +123,7 @@ export class WhatsAppBot {
                         args,
                         commandText: text,
                         reply: async (replyText: string) => {
-                            await sock.sendMessage(from, { text: replyText }, { quoted: msg });
+                            await OutboundQueue.enqueue(from, { text: replyText }, { quoted: msg });
                         },
                     };
 
@@ -147,8 +153,6 @@ export class WhatsAppBot {
     }
 
     public static async sendMessage(to: string, text: string) {
-        if (this.socket) {
-            await this.socket.sendMessage(to, { text });
-        }
+        await OutboundQueue.enqueue(to, { text });
     }
 }
