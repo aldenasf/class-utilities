@@ -10,9 +10,7 @@ export const command: Command = {
         const tasks = await TaskService.getActiveTasks();
 
         if (tasks.length === 0) {
-            await ctx.reply(
-                `📚 *Daftar Tugas / PR Kelas:*\n_Tidak ada tugas aktif. Semua tugas beres! 🎉_`
-            );
+            await ctx.reply(`📚 *Daftar Tugas / PR Kelas:*\n_Tidak ada tugas aktif. Semua tugas beres! 🎉_`);
             return;
         }
 

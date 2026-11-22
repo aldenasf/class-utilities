@@ -19,9 +19,7 @@ export const command: Command = {
         const capDay = dayNames[targetDay].toUpperCase();
 
         if (piketList.length === 0) {
-            await ctx.reply(
-                `🧹 *Jadwal Piket Hari ${capDay}:*\n_Belum ada petugas piket yang diatur._`
-            );
+            await ctx.reply(`🧹 *Jadwal Piket Hari ${capDay}:*\n_Belum ada petugas piket yang diatur._`);
             return;
         }
 

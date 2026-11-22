@@ -15,9 +15,7 @@ async function testServices() {
     const excelFile = path.resolve(process.cwd(), "MASTER BLOK GANJIL 2026-2027 KELAS XI-2.xlsx");
     const parsed = BlockScheduleParser.parse({ filePath: excelFile, targetClassName: "RPL A" });
     const syncResult = await ScheduleService.syncFromParsedExcel(parsed);
-    console.log(
-        `✅ Synced to DB: ${syncResult.teachersCount} guru, ${syncResult.scheduleCount} slot jadwal.`
-    );
+    console.log(`✅ Synced to DB: ${syncResult.teachersCount} guru, ${syncResult.scheduleCount} slot jadwal.`);
 
     // 2. Set current week = 4
     await prisma.setting.upsert({
@@ -27,16 +25,7 @@ async function testServices() {
     });
 
     // 3. Seed sample piket for Monday (dayOfWeek = 1)
-    await PiketService.setPiketForDay(1, [
-        "Adam D",
-        "Adam M",
-        "Fadil",
-        "Aidil",
-        "Akhtar",
-        "Alden",
-        "Alfian",
-        "Alvin",
-    ]);
+    await PiketService.setPiketForDay(1, ["Adam D", "Adam M", "Fadil", "Aidil", "Akhtar", "Alden", "Alfian", "Alvin"]);
     console.log(`✅ Seeded Piket Senin.`);
 
     // 4. Seed sample tasks

@@ -38,10 +38,7 @@ export class CommandRegistry {
                                 this.commands.set(cmd.name.toLowerCase(), cmd);
                                 if (cmd.aliases) {
                                     for (const alias of cmd.aliases) {
-                                        this.aliases.set(
-                                            alias.toLowerCase(),
-                                            cmd.name.toLowerCase()
-                                        );
+                                        this.aliases.set(alias.toLowerCase(), cmd.name.toLowerCase());
                                     }
                                 }
                             }

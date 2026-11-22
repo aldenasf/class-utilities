@@ -20,9 +20,7 @@ async function bootstrap() {
     // 3. Start Fastify Web Server & Dashboard
     const server = await createServer();
     await server.listen({ port: PORT, host: HOST });
-    console.log(
-        `[WEB] Dashboard & API listening on http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}`
-    );
+    console.log(`[WEB] Dashboard & API listening on http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}`);
 
     // 4. Start WhatsApp Bot
     if (process.env.DISABLE_WA !== "true") {

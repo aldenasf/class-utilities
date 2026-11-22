@@ -7,10 +7,7 @@ export class ReminderService {
     /**
      * Generate clean WhatsApp formatted reminder message for a given date (usually tomorrow)
      */
-    public static async generateDailyDigest(
-        targetDate: Date,
-        className: string = "RPL A"
-    ): Promise<string> {
+    public static async generateDailyDigest(targetDate: Date, className: string = "RPL A"): Promise<string> {
         const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
         const monthNames = [
             "Januari",
@@ -47,8 +44,7 @@ export class ReminderService {
         });
 
         // Determine room if available
-        const roomInfo =
-            schedule.length > 0 && schedule[0].room ? ` (Ruang: ${schedule[0].room})` : "";
+        const roomInfo = schedule.length > 0 && schedule[0].room ? ` (Ruang: ${schedule[0].room})` : "";
 
         // Build Message
         const lines: string[] = [];

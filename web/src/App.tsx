@@ -16,9 +16,7 @@ import {
 } from "lucide-react";
 
 export default function App() {
-    const [activeTab, setActiveTab] = useState<
-        "overview" | "jadwal" | "piket" | "tugas" | "settings"
-    >("overview");
+    const [activeTab, setActiveTab] = useState<"overview" | "jadwal" | "piket" | "tugas" | "settings">("overview");
     const [adminPin, setAdminPin] = useState<string>(localStorage.getItem("admin_pin") || "1234");
     const [pinModalOpen, setPinModalOpen] = useState(false);
     const [tempPin, setTempPin] = useState(adminPin);
@@ -261,12 +259,8 @@ export default function App() {
                             U
                         </div>
                         <div>
-                            <h1 className="font-bold text-lg text-slate-900 leading-tight">
-                                Utility Kelas
-                            </h1>
-                            <p className="text-xs text-slate-500 font-medium">
-                                Asisten & Manajemen Kelas XI RPL
-                            </p>
+                            <h1 className="font-bold text-lg text-slate-900 leading-tight">Utility Kelas</h1>
+                            <p className="text-xs text-slate-500 font-medium">Asisten & Manajemen Kelas XI RPL</p>
                         </div>
                     </div>
 
@@ -329,14 +323,11 @@ export default function App() {
                                     <span className="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full uppercase tracking-wider">
                                         Perlu Tautan WhatsApp
                                     </span>
-                                    <h3 className="text-lg font-bold text-slate-900 mt-2">
-                                        Hubungkan Bot WhatsApp
-                                    </h3>
+                                    <h3 className="text-lg font-bold text-slate-900 mt-2">Hubungkan Bot WhatsApp</h3>
                                     <p className="text-sm text-slate-500 mt-1 max-w-md">
                                         Buka aplikasi WhatsApp di HP Anda &gt; menu{" "}
                                         <strong>Titik Tiga / Pengaturan</strong> &gt; pilih{" "}
-                                        <strong>Perangkat Tertaut</strong> &gt; arahkan kamera ke QR
-                                        Code di samping.
+                                        <strong>Perangkat Tertaut</strong> &gt; arahkan kamera ke QR Code di samping.
                                     </p>
                                 </div>
                                 <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center">
@@ -346,8 +337,7 @@ export default function App() {
                                         className="w-48 h-48 rounded-lg"
                                     />
                                     <span className="text-[11px] text-slate-400 mt-2 flex items-center gap-1 animate-pulse">
-                                        <RefreshCw className="w-3 h-3 animate-spin" /> QR otomatis
-                                        diperbarui
+                                        <RefreshCw className="w-3 h-3 animate-spin" /> QR otomatis diperbarui
                                     </span>
                                 </div>
                             </div>
@@ -363,11 +353,7 @@ export default function App() {
                                         <span
                                             className={`w-3 h-3 rounded-full ${statusData?.whatsappReady ? "bg-emerald-500 animate-pulse" : "bg-amber-500"}`}
                                         />
-                                        <span>
-                                            {statusData?.whatsappReady
-                                                ? "Online & Siap"
-                                                : "Siap / Standby"}
-                                        </span>
+                                        <span>{statusData?.whatsappReady ? "Online & Siap" : "Siap / Standby"}</span>
                                     </p>
                                 </div>
                                 <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
@@ -394,9 +380,7 @@ export default function App() {
                                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                                         Minggu Pembelajaran
                                     </p>
-                                    <p className="text-2xl font-bold text-slate-900 mt-1">
-                                        Minggu ke-{currentWeek}
-                                    </p>
+                                    <p className="text-2xl font-bold text-slate-900 mt-1">Minggu ke-{currentWeek}</p>
                                 </div>
                                 <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
                                     <Calendar className="w-6 h-6" />
@@ -413,9 +397,8 @@ export default function App() {
                                         <span>Pengiriman Pengingat Manual</span>
                                     </h3>
                                     <p className="text-sm text-slate-500 mt-1">
-                                        Scheduler harian otomatis berjalan tiap jam 18.30 WIB. Anda
-                                        juga bisa menguji pengiriman rekap esok hari secara langsung
-                                        ke grup WhatsApp kelas kapan saja.
+                                        Scheduler harian otomatis berjalan tiap jam 18.30 WIB. Anda juga bisa menguji
+                                        pengiriman rekap esok hari secara langsung ke grup WhatsApp kelas kapan saja.
                                     </p>
                                 </div>
                                 <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
@@ -427,9 +410,7 @@ export default function App() {
                                         disabled={loading}
                                         className="inline-flex items-center space-x-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-xl shadow-md shadow-indigo-100 transition-all disabled:opacity-50"
                                     >
-                                        <RefreshCw
-                                            className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
-                                        />
+                                        <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
                                         <span>Kirim Pengingat Sekarang</span>
                                     </button>
                                 </div>
@@ -458,8 +439,8 @@ export default function App() {
                                 <span>Interactive Schedule Range Selector (Excel Importer)</span>
                             </h3>
                             <p className="text-sm text-slate-500 mt-1 mb-4">
-                                Pilih parameter baris pada file master Excel untuk menyesuaikan
-                                pembacaan jadwal secara fleksibel tanpa takut layout bergeser.
+                                Pilih parameter baris pada file master Excel untuk menyesuaikan pembacaan jadwal secara
+                                fleksibel tanpa takut layout bergeser.
                             </p>
 
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -550,11 +531,9 @@ export default function App() {
 
                             {parsedPreview && (
                                 <div className="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800">
-                                    ✅ Terbaca: <strong>{parsedPreview.teachers?.length}</strong>{" "}
-                                    Guru & Kode Mapel,{" "}
-                                    <strong>{parsedPreview.schedule?.length}</strong> Slot Jadwal
-                                    Pelajaran untuk kelas <strong>{parsedPreview.className}</strong>
-                                    .
+                                    ✅ Terbaca: <strong>{parsedPreview.teachers?.length}</strong> Guru & Kode Mapel,{" "}
+                                    <strong>{parsedPreview.schedule?.length}</strong> Slot Jadwal Pelajaran untuk kelas{" "}
+                                    <strong>{parsedPreview.className}</strong>.
                                 </div>
                             )}
                         </div>
@@ -600,13 +579,10 @@ export default function App() {
                                     <tbody className="divide-y divide-slate-100">
                                         {weekSchedule.length === 0 ? (
                                             <tr>
-                                                <td
-                                                    colSpan={5}
-                                                    className="py-6 text-center text-slate-400"
-                                                >
+                                                <td colSpan={5} className="py-6 text-center text-slate-400">
                                                     Belum ada data jadwal untuk minggu ke-
-                                                    {currentWeek}. Silakan klik tombol "Simpan &
-                                                    Terapkan ke Database" di atas.
+                                                    {currentWeek}. Silakan klik tombol "Simpan & Terapkan ke Database"
+                                                    di atas.
                                                 </td>
                                             </tr>
                                         ) : (
@@ -619,10 +595,7 @@ export default function App() {
                                                     s.code === "5";
                                                 const isL1 = s.code === "L1";
                                                 return (
-                                                    <tr
-                                                        key={idx}
-                                                        className="hover:bg-slate-50/80 transition-colors"
-                                                    >
+                                                    <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
                                                         <td className="py-3 px-4 font-semibold text-slate-700">
                                                             Waktu {s.slotNumber}
                                                         </td>
@@ -668,8 +641,7 @@ export default function App() {
                                 <span>Pengaturan Petugas Piket Harian (Senin - Jumat)</span>
                             </h3>
                             <p className="text-sm text-slate-500 mb-6">
-                                Masukkan nama-nama siswa yang bertugas piket dipisahkan dengan koma
-                                atau baris baru.
+                                Masukkan nama-nama siswa yang bertugas piket dipisahkan dengan koma atau baris baru.
                             </p>
 
                             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -679,16 +651,12 @@ export default function App() {
                                         className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between"
                                     >
                                         <div>
-                                            <h4 className="font-bold text-sm text-slate-800 mb-2">
-                                                {daysLabel[day]}
-                                            </h4>
+                                            <h4 className="font-bold text-sm text-slate-800 mb-2">{daysLabel[day]}</h4>
                                             <textarea
                                                 rows={6}
                                                 value={(piketData[day] || []).join("\n")}
                                                 onChange={(e) => {
-                                                    const val = e.target.value
-                                                        .split("\n")
-                                                        .filter(Boolean);
+                                                    const val = e.target.value.split("\n").filter(Boolean);
                                                     setPiketData({ ...piketData, [day]: val });
                                                 }}
                                                 placeholder="Contoh:&#10;Alden&#10;Adam D&#10;Fadil"
@@ -717,10 +685,7 @@ export default function App() {
                                 <Plus className="w-5 h-5 text-indigo-600" />
                                 <span>Tambah Tugas / PR Baru</span>
                             </h3>
-                            <form
-                                onSubmit={handleAddTask}
-                                className="grid grid-cols-1 sm:grid-cols-3 gap-4"
-                            >
+                            <form onSubmit={handleAddTask} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div className="sm:col-span-2">
                                     <label className="block text-xs font-semibold text-slate-600 mb-1">
                                         Deskripsi Tugas
@@ -759,9 +724,7 @@ export default function App() {
 
                         {/* Task Table */}
                         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                            <h3 className="text-base font-bold text-slate-900 mb-4">
-                                Daftar Semua Tugas Kelas
-                            </h3>
+                            <h3 className="text-base font-bold text-slate-900 mb-4">Daftar Semua Tugas Kelas</h3>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left text-xs border-collapse">
                                     <thead>
@@ -776,10 +739,7 @@ export default function App() {
                                     <tbody className="divide-y divide-slate-100">
                                         {tasks.length === 0 ? (
                                             <tr>
-                                                <td
-                                                    colSpan={5}
-                                                    className="py-6 text-center text-slate-400"
-                                                >
+                                                <td colSpan={5} className="py-6 text-center text-slate-400">
                                                     Belum ada tugas tercatat.
                                                 </td>
                                             </tr>
@@ -788,15 +748,10 @@ export default function App() {
                                                 const d = new Date(t.deadline);
                                                 const deadlineFormatted = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
                                                 return (
-                                                    <tr
-                                                        key={t.id}
-                                                        className="hover:bg-slate-50 transition-colors"
-                                                    >
+                                                    <tr key={t.id} className="hover:bg-slate-50 transition-colors">
                                                         <td className="py-3 px-4">
                                                             <button
-                                                                onClick={() =>
-                                                                    handleToggleTask(t.id)
-                                                                }
+                                                                onClick={() => handleToggleTask(t.id)}
                                                                 className="text-slate-400 hover:text-indigo-600"
                                                             >
                                                                 {t.isCompleted ? (
@@ -819,9 +774,7 @@ export default function App() {
                                                         </td>
                                                         <td className="py-3 px-4 text-right">
                                                             <button
-                                                                onClick={() =>
-                                                                    handleDeleteTask(t.id)
-                                                                }
+                                                                onClick={() => handleDeleteTask(t.id)}
                                                                 className="p-1 text-slate-400 hover:text-rose-600 transition-colors"
                                                             >
                                                                 <Trash2 className="w-4 h-4" />
@@ -854,14 +807,10 @@ export default function App() {
                                 type="text"
                                 placeholder="18:30"
                                 value={settings["reminder_time"] || "18:30"}
-                                onChange={(e) =>
-                                    setSettings({ ...settings, reminder_time: e.target.value })
-                                }
+                                onChange={(e) => setSettings({ ...settings, reminder_time: e.target.value })}
                                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none font-mono"
                             />
-                            <p className="text-xs text-slate-400 mt-1">
-                                Format: 24 jam (JJ:MM), misal 18:30
-                            </p>
+                            <p className="text-xs text-slate-400 mt-1">Format: 24 jam (JJ:MM), misal 18:30</p>
                         </div>
 
                         <div>
@@ -870,17 +819,11 @@ export default function App() {
                             </label>
                             <select
                                 value={settings["reminder_enabled"] || "true"}
-                                onChange={(e) =>
-                                    setSettings({ ...settings, reminder_enabled: e.target.value })
-                                }
+                                onChange={(e) => setSettings({ ...settings, reminder_enabled: e.target.value })}
                                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
                             >
-                                <option value="true">
-                                    Aktif (Kirim pesan otomatis setiap sore/malam)
-                                </option>
-                                <option value="false">
-                                    Nonaktif (Hanya kirim saat diminta manual)
-                                </option>
+                                <option value="true">Aktif (Kirim pesan otomatis setiap sore/malam)</option>
+                                <option value="false">Nonaktif (Hanya kirim saat diminta manual)</option>
                             </select>
                         </div>
 
@@ -892,9 +835,7 @@ export default function App() {
                                 type="text"
                                 placeholder="Otomatis terisi saat bot aktif di grup..."
                                 value={settings["class_group_jid"] || ""}
-                                onChange={(e) =>
-                                    setSettings({ ...settings, class_group_jid: e.target.value })
-                                }
+                                onChange={(e) => setSettings({ ...settings, class_group_jid: e.target.value })}
                                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none font-mono"
                             />
                         </div>
@@ -930,8 +871,7 @@ export default function App() {
                             <span>Kunci Akses Admin Web</span>
                         </h3>
                         <p className="text-xs text-slate-500 mb-4">
-                            Masukkan Master PIN Admin agar dapat mengubah jadwal, piket, dan
-                            pengaturan.
+                            Masukkan Master PIN Admin agar dapat mengubah jadwal, piket, dan pengaturan.
                         </p>
                         <input
                             type="password"

@@ -153,16 +153,8 @@ export const apiRoutes: FastifyPluginAsync = async (server: FastifyInstance) => 
 
     // Excel Parser & Sync
     server.post("/api/excel/parse", async (req) => {
-        const {
-            className = "RPL A",
-            weekRow = 8,
-            slotRow = 9,
-            dateRow = 33,
-        } = (req.body as any) || {};
-        const defaultExcelPath = path.resolve(
-            process.cwd(),
-            "MASTER BLOK GANJIL 2026-2027 KELAS XI-2.xlsx"
-        );
+        const { className = "RPL A", weekRow = 8, slotRow = 9, dateRow = 33 } = (req.body as any) || {};
+        const defaultExcelPath = path.resolve(process.cwd(), "MASTER BLOK GANJIL 2026-2027 KELAS XI-2.xlsx");
 
         const parsed = BlockScheduleParser.parse({
             filePath: defaultExcelPath,

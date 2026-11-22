@@ -44,9 +44,7 @@ export class SchedulerEngine {
         const targetJid = groupSetting?.value || process.env.CLASS_GROUP_JID;
 
         if (!targetJid) {
-            console.log(
-                `[Scheduler] No target class group JID found. Daily digest not dispatched.`
-            );
+            console.log(`[Scheduler] No target class group JID found. Daily digest not dispatched.`);
             return;
         }
 

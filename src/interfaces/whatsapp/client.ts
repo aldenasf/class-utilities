@@ -1,8 +1,4 @@
-import makeWASocket, {
-    DisconnectReason,
-    useMultiFileAuthState,
-    WASocket,
-} from "@whiskeysockets/baileys";
+import makeWASocket, { DisconnectReason, useMultiFileAuthState, WASocket } from "@whiskeysockets/baileys";
 import { Boom } from "@hapi/boom";
 import pino from "pino";
 import path from "path";
@@ -47,16 +43,13 @@ export class WhatsAppBot {
 
                 console.log("[WA] Scan the following QR code with WhatsApp (Linked Devices):");
                 qrcodeTerminal.generate(qr, { small: true });
-                console.log(
-                    "[WA] Visual QR code also available on Web Dashboard: http://localhost:3000"
-                );
+                console.log("[WA] Visual QR code also available on Web Dashboard: http://localhost:3000");
             }
 
             if (connection === "close") {
                 this.connected = false;
                 const shouldReconnect =
-                    (lastDisconnect?.error as Boom)?.output?.statusCode !==
-                    DisconnectReason.loggedOut;
+                    (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
                 console.log(`[WA] Connection closed. Reconnecting: ${shouldReconnect}`);
                 if (shouldReconnect) {
                     setTimeout(() => this.start(), 3000);
@@ -88,8 +81,7 @@ export class WhatsAppBot {
                     });
                 }
 
-                const text =
-                    msg.message.conversation || msg.message.extendedTextMessage?.text || "";
+                const text = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
 
                 if (!text.startsWith(this.prefix)) continue;
 

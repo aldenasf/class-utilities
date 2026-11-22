@@ -95,8 +95,7 @@ export class BlockScheduleParser {
         // Look for matching sheet name (handling trailing spaces)
         const availableSheets = workbook.SheetNames;
         const actualSheetName =
-            availableSheets.find((s) => s.trim() === cfg.masterSheetName.trim()) ||
-            availableSheets[0];
+            availableSheets.find((s) => s.trim() === cfg.masterSheetName.trim()) || availableSheets[0];
         const sheet = workbook.Sheets[actualSheetName];
         if (!sheet) return { schedule: [], weeks: [] };
 
@@ -107,10 +106,7 @@ export class BlockScheduleParser {
         let classRowIndex = -1;
         for (let r = 0; r <= range.e.r; r++) {
             const cell = sheet[XLSX.utils.encode_cell({ r, c: 1 })];
-            if (
-                cell &&
-                String(cell.v).trim().toUpperCase() === cfg.targetClassName.trim().toUpperCase()
-            ) {
+            if (cell && String(cell.v).trim().toUpperCase() === cfg.targetClassName.trim().toUpperCase()) {
                 classRowIndex = r;
                 break;
             }
@@ -131,9 +127,7 @@ export class BlockScheduleParser {
             for (const m of merges) {
                 if (r >= m.s.r && r <= m.e.r && c >= m.s.c && c <= m.e.c) {
                     const originCell = sheet[XLSX.utils.encode_cell({ r: m.s.r, c: m.s.c })];
-                    return originCell && originCell.v !== undefined
-                        ? String(originCell.v).trim()
-                        : "";
+                    return originCell && originCell.v !== undefined ? String(originCell.v).trim() : "";
                 }
             }
             const cell = sheet[XLSX.utils.encode_cell({ r, c })];

@@ -31,26 +31,12 @@ export const command: Command = {
             deadline = new Date(now.getFullYear(), month, day, 23, 59, 59);
         } else if (parts.length === 3) {
             if (parts[0].length === 4) {
-                deadline = new Date(
-                    parseInt(parts[0], 10),
-                    parseInt(parts[1], 10) - 1,
-                    parseInt(parts[2], 10),
-                    23,
-                    59
-                );
+                deadline = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10), 23, 59);
             } else {
-                deadline = new Date(
-                    parseInt(parts[2], 10),
-                    parseInt(parts[1], 10) - 1,
-                    parseInt(parts[0], 10),
-                    23,
-                    59
-                );
+                deadline = new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10), 23, 59);
             }
         } else {
-            await ctx.reply(
-                `⚠️ Format tanggal tidak dikenali. Gunakan format misal: *18-10* atau *2026-10-18*.`
-            );
+            await ctx.reply(`⚠️ Format tanggal tidak dikenali. Gunakan format misal: *18-10* atau *2026-10-18*.`);
             return;
         }
 

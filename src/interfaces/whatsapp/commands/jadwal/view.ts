@@ -25,9 +25,7 @@ export const command: Command = {
         }
 
         const room = schedule[0]?.room ? ` (Ruang: ${schedule[0].room})` : "";
-        const lines = [
-            `✨ *Jadwal Pelajaran ${title} (${dayNames[targetDate.getDay()]})${room}* ✨`,
-        ];
+        const lines = [`✨ *Jadwal Pelajaran ${title} (${dayNames[targetDate.getDay()]})${room}* ✨`];
 
         schedule.forEach((s, idx) => {
             const teacher = s.teacherName ? ` (${s.teacherName})` : "";
