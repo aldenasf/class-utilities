@@ -15,6 +15,7 @@ export class WhatsAppBot {
     private static currentQr: string | null = null;
     private static currentQrDataUrl: string | null = null;
     private static connected: boolean = false;
+    private static admin: string[] = process.env.ADMIN ? process.env.ADMIN.split(",").map((s) => s.trim()) : [];
 
     public static async start(): Promise<WASocket> {
         await CommandRegistry.loadCommands();
@@ -91,7 +92,19 @@ export class WhatsAppBot {
 
                 const command = CommandRegistry.getCommand(commandName);
                 if (command) {
-                    if (command.permission === "superuser" && sender !== process.env.SUPERUSER) {
+                    if (command.permission === "superuser" && sender !== process.env.SUPERUSER) return;
+                    if (
+                        command.permission === "admin" &&
+                        !this.admin.includes(sender) &&
+                        sender !== process.env.SUPERUSER
+                    )
+                        return;
+
+                    if (
+                        command.permission === "admin" &&
+                        sender !== process.env.SUPERUSER &&
+                        !this.admin.includes(sender)
+                    ) {
                         return;
                     }
 
