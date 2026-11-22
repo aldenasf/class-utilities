@@ -50,17 +50,21 @@ export class ScheduleService {
 
         // 3. Save weeks
         for (const w of data.weeks) {
-            // Create mock dates if none present
             const now = new Date();
+            const startDate = w.startDate || now;
+            const endDate = w.endDate || now;
+
             await prisma.semesterWeek.upsert({
                 where: { weekNumber: w.weekNumber },
                 update: {
+                    startDate,
+                    endDate,
                     eventNote: w.eventNote,
                 },
                 create: {
                     weekNumber: w.weekNumber,
-                    startDate: w.startDate || now,
-                    endDate: w.endDate || now,
+                    startDate,
+                    endDate,
                     eventNote: w.eventNote,
                 },
             });
@@ -94,11 +98,22 @@ export class ScheduleService {
 
         return slots.map((s) => {
             const t = teacherMap.get(s.code);
+            const isNumeric = /^\d+$/.test(s.code);
+            let subjectName = t ? t.subjectName : s.code;
+            let teacherName = t ? t.teacherName : undefined;
+
+            if (isNumeric || s.room === "Bkl") {
+                subjectName = `Praktik Kejuruan (Bengkel${isNumeric ? " " + s.code : ""})`;
+                teacherName = teacherName || "Guru Produktif / Kejuruan";
+            } else if (s.code === "MPLS") {
+                subjectName = "Masa Pengenalan Lingkungan Sekolah (MPLS)";
+            }
+
             return {
                 slotNumber: s.slotNumber,
                 code: s.code,
-                subjectName: t ? t.subjectName : s.code,
-                teacherName: t ? t.teacherName : undefined,
+                subjectName,
+                teacherName,
                 room: s.room || undefined,
                 isOverride: false,
             };
@@ -108,7 +123,7 @@ export class ScheduleService {
     /**
      * Get schedule for tomorrow or a specific date
      */
-    public static async getScheduleForDate(date: Date, className: string = "RPL A") {
+    public static async getScheduleForDate(date: Date, className: string = "RPL A"): Promise<ResolvedLessonSlot[]> {
         // 1. Check for overrides on this specific date (normalized to YYYY-MM-DD)
         const startOfDay = new Date(date);
         startOfDay.setHours(0, 0, 0, 0);
@@ -122,6 +137,7 @@ export class ScheduleService {
                     lte: endOfDay,
                 },
             },
+            orderBy: { slotNumber: "asc" },
         });
 
         if (overrides.length > 0) {
@@ -135,12 +151,31 @@ export class ScheduleService {
             }));
         }
 
-        // 2. Fallback to active semester week setting
-        const currentWeekSetting = await prisma.setting.findUnique({
-            where: { key: "current_week" },
+        // 2. Weekend check (Saturday = 6, Sunday = 0): No KBM on weekends
+        const dayOfWeek = date.getDay();
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            return [];
+        }
+
+        // 3. Resolve active semester week dynamically from date
+        const matchedWeek = await prisma.semesterWeek.findFirst({
+            where: {
+                startDate: { lte: endOfDay },
+                endDate: { gte: startOfDay },
+            },
         });
 
-        const weekNumber = currentWeekSetting ? parseInt(currentWeekSetting.value, 10) : 4; // Default to week 4
+        let weekNumber: number;
+        if (matchedWeek) {
+            weekNumber = matchedWeek.weekNumber;
+        } else {
+            // Fallback to active semester week setting
+            const currentWeekSetting = await prisma.setting.findUnique({
+                where: { key: "current_week" },
+            });
+            weekNumber = currentWeekSetting ? parseInt(currentWeekSetting.value, 10) : 4;
+        }
+
         return this.getScheduleForWeek(weekNumber, className);
     }
 }

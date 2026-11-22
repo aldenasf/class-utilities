@@ -43,12 +43,24 @@ async function testServices() {
     });
     console.log(`✅ Seeded Notes.\n`);
 
-    // 6. Generate Daily Digest for Monday
-    const mondayDate = new Date(2026, 10, 17); // Sample date
-    const digest = await ReminderService.generateDailyDigest(mondayDate, "RPL A");
+    // 6. Test date-based schedule resolution and reminders
+    const sundayDate = new Date(2026, 10, 22); // Sunday
+    const mondayDate = new Date(2026, 10, 23); // Monday (Week 20)
+    const week4Date = new Date(2026, 7, 4); // Tuesday (Week 4)
 
-    console.log(`--- PREVIEW PESAN WHATSAPP OTOMATIS ---\n`);
-    console.log(digest);
+    console.log(`--- TEST 1: HARI MINGGU 22 NOV (AKHIR PEKAN) ---`);
+    const sundayDigest = await ReminderService.generateDailyDigest(sundayDate, "RPL A");
+    console.log(sundayDigest);
+    console.log(`\n---------------------------------------\n`);
+
+    console.log(`--- TEST 2: HARI SENIN 23 NOV (WEEK 20 - BENGKEL) ---`);
+    const mondayDigest = await ReminderService.generateDailyDigest(mondayDate, "RPL A");
+    console.log(mondayDigest);
+    console.log(`\n---------------------------------------\n`);
+
+    console.log(`--- TEST 3: WEEK 4 TEORI (RUANG 2) ---`);
+    const week4Digest = await ReminderService.generateDailyDigest(week4Date, "RPL A");
+    console.log(week4Digest);
     console.log(`\n---------------------------------------\n`);
 
     await prisma.$disconnect();

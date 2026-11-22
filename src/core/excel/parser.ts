@@ -6,6 +6,7 @@ import {
     ParsedBlockSlot,
     ParsedWeekDate,
 } from "./types.js";
+import { parseIndonesianDateRange } from "./date-utils.js";
 
 /**
  * Standalone parser for SMKN 1 Jenangan Block Schedule Excel format.
@@ -190,9 +191,12 @@ export class BlockScheduleParser {
 
             // Read date range string from dateRow
             const dateStr = getCellValue(dateRowIdx, startCol);
+            const parsedDates = parseIndonesianDateRange(dateStr);
             weeks.push({
                 weekNumber: wInfo.week,
                 dateRangeStr: dateStr,
+                startDate: parsedDates?.startDate,
+                endDate: parsedDates?.endDate,
                 eventNote: wInfo.eventNote,
             });
 

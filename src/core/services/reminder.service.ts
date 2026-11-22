@@ -44,14 +44,17 @@ export class ReminderService {
         });
 
         // Determine room if available
-        const roomInfo = schedule.length > 0 && schedule[0].room ? ` (Ruang: ${schedule[0].room})` : "";
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        const roomInfo = !isWeekend && schedule.length > 0 && schedule[0].room ? ` (Ruang: ${schedule[0].room})` : "";
 
         // Build Message
         const lines: string[] = [];
         lines.push(`Assalamualaikum wr wb.`);
         lines.push(`✨ *Jadwal untuk ${dayName}, ${dateFormatted}${roomInfo}* ✨`);
 
-        if (schedule.length === 0) {
+        if (isWeekend) {
+            lines.push(`_Libur Akhir Pekan (Tidak ada kegiatan KBM)._`);
+        } else if (schedule.length === 0) {
             lines.push(`_Tidak ada jadwal KBM / Libur._`);
         } else {
             schedule.forEach((s, idx) => {
@@ -64,7 +67,9 @@ export class ReminderService {
         lines.push(
             `🧹 *Jadwal piket ${targetDate.getDate()}-${targetDate.getMonth() + 1}-${targetDate.getFullYear()}* 🧹`
         );
-        if (piketList.length === 0) {
+        if (isWeekend) {
+            lines.push(`_Libur akhir pekan (Tidak ada piket)._`);
+        } else if (piketList.length === 0) {
             lines.push(`_Belum ada jadwal piket yang diatur._`);
         } else {
             piketList.forEach((student, idx) => {

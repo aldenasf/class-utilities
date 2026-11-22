@@ -18,9 +18,11 @@ export const command: Command = {
         const title = isToday ? "Hari Ini" : "Besok";
 
         if (schedule.length === 0) {
-            await ctx.reply(
-                `✨ *Jadwal Pelajaran ${title} (${dayNames[targetDate.getDay()]})*\n_Tidak ada jadwal KBM / Libur._`
-            );
+            const isWeekend = targetDate.getDay() === 0 || targetDate.getDay() === 6;
+            const statusMsg = isWeekend
+                ? "_Libur Akhir Pekan (Tidak ada jadwal KBM)._"
+                : "_Tidak ada jadwal KBM / Libur._";
+            await ctx.reply(`✨ *Jadwal Pelajaran ${title} (${dayNames[targetDate.getDay()]})*\n${statusMsg}`);
             return;
         }
 
